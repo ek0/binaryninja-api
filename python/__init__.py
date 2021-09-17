@@ -118,6 +118,11 @@ def _init_plugins():
 	global _enable_default_log
 	global _plugin_init
 	if not _plugin_init:
+		if not core_ui_enabled() and core.BNGetProduct() == "Binary Ninja Enterprise Client":
+			# Enterprise client needs to checkout a license reservation or else BNInitPlugins will fail
+			if not core.BNAuthenticateEnterpriseServerWithMethod("Keychain"):
+				raise RuntimeError("Could not find license reservation!")
+
 		# The first call to BNInitCorePlugins returns True for successful initialization and True in this context indicates headless operation.
 		# The result is pulled from BNInitPlugins as that now wraps BNInitCorePlugins.
 		is_headless_init_once = core.BNInitPlugins(not os.environ.get('BN_DISABLE_USER_PLUGINS'))
